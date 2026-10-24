@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>小小教案工坊｜托嬰中心簡報生成器</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <style>
+    :root { --ink:#24332f; --muted:#70817c; --line:#dfe9e4; --mint:#d8eee5; --green:#377d68; --coral:#ee8f72; --cream:#fffaf1; --paper:#ffffff; --shadow:0 18px 50px rgba(42,75,65,.10); }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f3f8f5; font-family:'Noto Sans TC',sans-serif; }
+    button, input, textarea { font:inherit; }
+    button { cursor:pointer; }
+    .shell { min-height:100vh; display:grid; grid-template-columns:360px 1fr; }
+    aside { background:var(--paper); border-right:1px solid var(--line); padding:28px 24px; overflow:auto; }
+    .brand { display:flex; gap:12px; align-items:center; margin-bottom:32px; }
+    .brand-mark { width:42px; height:42px; border-radius:13px; background:var(--mint); display:grid; place-items:center; font-size:22px; }
+    .brand h1 { font-family:'Zen Maru Gothic',sans-serif; font-size:17px; margin:0; letter-spacing:.04em; }
+    .brand p { margin:3px 0 0; color:var(--muted); font-size:12px; }
+    .eyebrow { font-size:11px; letter-spacing:.12em; color:var(--green); font-weight:800; margin:0 0 8px; }
+    .field { margin-bottom:22px; }
+    label { display:block; font-size:13px; font-weight:700; margin-bottom:8px; }
+    input[type=text], textarea { width:100%; border:1px solid var(--line); background:#fbfdfc; border-radius:10px; color:var(--ink); padding:11px 12px; outline:none; transition:.2s; }
+    input[type=text]:focus, textarea:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(55,125,104,.12); }
+    textarea { resize:vertical; min-height:90px; line-height:1.65; }
+    .drop { border:1.5px dashed #a9cbc0; background:#f5fbf8; border-radius:12px; min-height:130px; padding:18px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:var(--muted); transition:.2s; }
+    .drop.drag { background:#e7f6ef; border-color:var(--green); }
+    .drop strong { color:var(--ink); font-size:13px; margin-bottom:5px; }
+    .drop span { font-size:11px; }
+    .drop input { display:none; }
+    .upload-button { margin-top:12px; color:var(--green); background:#fff; border:1px solid #b9dbcf; border-radius:8px; padding:7px 11px; font-size:12px; font-weight:700; }
+    .thumbs { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-top:10px; }
+    .thumb { aspect-ratio:1; border-radius:8px; overflow:hidden; position:relative; border:1px solid var(--line); background:#edf4f1; }
+    .thumb img { width:100%; height:100%; object-fit:cover; }
+    .thumb button { position:absolute; right:3px; top:3px; width:20px; height:20px; border:0; border-radius:50%; background:rgba(36,51,47,.76); color:#fff; line-height:1; }
+    .generate { width:100%; padding:13px; border:0; border-radius:10px; background:var(--green); color:white; font-weight:800; letter-spacing:.04em; box-shadow:0 8px 18px rgba(55,125,104,.22); }
+    .generate:hover { background:#2e6b59; transform:translateY(-1px); }
+    .hint { color:var(--muted); font-size:11px; line-height:1.6; margin:10px 1px 0; }
+    main { padding:30px clamp(24px,5vw,72px) 50px; min-width:0; }
+    .topbar { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; max-width:1120px; margin:0 auto 22px; }
+    .topbar h2 { margin:0; font-family:'Zen Maru Gothic',sans-serif; font-size:28px; letter-spacing:.02em; }
+    .topbar p { margin:7px 0 0; color:var(--muted); font-size:13px; }
+    .actions { display:flex; gap:8px; }
+    .secondary { border:1px solid var(--line); background:#fff; border-radius:9px; color:var(--ink); padding:10px 13px; font-size:12px; font-weight:700; }
+    .secondary:hover { border-color:#a6cabb; }
+    .workspace { max-width:1120px; margin:0 auto; display:grid; grid-template-columns:minmax(0,1fr) 238px; gap:20px; align-items:start; }
+    .preview { background:#dce9e4; border-radius:16px; padding:30px; min-height:720px; box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center; }
+    .preview-wrap { min-width:0; }
+    .preview-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+    .export-main { border:0; border-radius:9px; background:var(--coral); color:#fff; padding:11px 16px; font-size:12px; font-weight:800; box-shadow:0 7px 16px rgba(238,143,114,.24); }
+    .export-main:hover { background:#df795d; transform:translateY(-1px); }
+    .slide { width:min(100%, 560px); aspect-ratio:210/297; background:var(--cream); border-radius:4px; box-shadow:0 10px 25px rgba(35,64,54,.18); position:relative; overflow:hidden; padding:34px 36px; }
+    .slide:before { content:''; position:absolute; inset:0; background:linear-gradient(145deg, rgba(216,238,229,.5), transparent 32%); pointer-events:none; }
+    .slide-kicker { color:var(--coral); font-size:10px; font-weight:800; letter-spacing:.14em; margin-bottom:17px; position:relative; }
+    .slide h3 { font-family:'Zen Maru Gothic',sans-serif; font-size:31px; line-height:1.25; margin:0 0 16px; position:relative; max-width:90%; }
+    .slide .lead { font-size:13px; line-height:1.8; color:#52645e; position:relative; margin:0; }
+    .slide ul { position:relative; margin:24px 0 0; padding-left:20px; color:#52645e; font-size:12px; line-height:1.8; }
+    .slide li { margin-bottom:12px; padding-left:4px; }
+    .steps { position:relative; margin-top:25px; display:grid; gap:15px; }
+    .steps > div { display:grid; grid-template-columns:30px 1fr; gap:10px; align-items:start; }
+    .steps b { color:var(--coral); font-size:14px; }
+    .steps span { color:#52645e; font-size:12px; line-height:1.7; }
+    .steps strong { color:var(--ink); display:block; font-size:13px; margin-bottom:2px; }
+    .cover-photo { height:35%; min-height:145px; margin:22px 0 17px; border-radius:13px; overflow:hidden; background:#cbe6db; position:relative; }
+    .cover-photo img { width:100%; height:100%; object-fit:cover; display:block; }
+    .cover-photo.empty { display:grid; place-items:center; color:#5f9984; font-size:12px; font-weight:700; }
+    .cover-photo.empty:before { content:'照片會呈現在這裡'; }
+    .slide-footer { display:flex; justify-content:space-between; align-items:center; color:#8aa097; font-size:9px; position:absolute; bottom:25px; left:36px; right:36px; }
+    .side-panel { background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px; }
+    .side-panel h4 { margin:0 0 13px; font-size:13px; }
+    .slide-list { display:grid; gap:8px; }
+    .slide-item { width:100%; text-align:left; background:#fbfdfc; border:1px solid var(--line); border-radius:9px; padding:10px; color:var(--ink); }
+    .slide-item.active { border-color:var(--green); background:#f1faf6; }
+    .slide-item strong { display:block; font-size:12px; margin-bottom:4px; }
+    .slide-item span { color:var(--muted); font-size:10px; }
+    .note { margin-top:16px; padding:12px; background:#fff8e8; border-radius:9px; color:#806d48; font-size:11px; line-height:1.6; }
+    .status { display:none; margin-top:12px; padding:10px; background:#eef8f3; color:#3b725f; border-radius:8px; font-size:11px; }
+    @media (max-width:900px) { .shell { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--line); } .workspace { grid-template-columns:1fr; } .side-panel { order:-1; } .slide-list { grid-template-columns:repeat(4,1fr); } .preview { min-height:500px; padding:18px; } }
+    @media (max-width:560px) { main { padding:22px 15px 35px; } .topbar { display:block; } .actions { margin-top:14px; } .slide { padding:26px 24px; } .slide h3 { font-size:25px; } .slide-footer { left:24px; right:24px; } }
+    @media print { body { background:#fff; } aside, .topbar, .side-panel { display:none !important; } main { padding:0; } .preview { padding:0; min-height:0; background:#fff; box-shadow:none; } .slide { width:210mm; height:297mm; box-shadow:none; page-break-after:always; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand"><div class="brand-mark">✦</div><div><h1>小小教案工坊</h1><p>托嬰中心 A4 簡報生成器</p></div></div>
+      <p class="eyebrow">01 · 素材</p>
+      <div class="field">
+        <label>上傳活動照片</label>
+        <div class="drop" id="drop"><strong>拖曳照片到這裡</strong><span>支援 JPG、PNG，最多 8 張</span><label class="upload-button" for="photoInput">選擇照片</label><input id="photoInput" type="file" accept="image/*" multiple></div>
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+      <p class="eyebrow">02 · 教案設定</p>
+      <div class="field"><label for="topic">活動主題</label><input id="topic" type="text" value="小手探索：彩色觸覺袋" placeholder="例如：認識水果、春天散步"></div>
+      <div class="field"><label for="age">適用年齡</label><input id="age" type="text" value="1–2 歲幼兒" placeholder="例如：0–1 歲"></div>
+      <div class="field"><label for="observation">觀察重點（選填）</label><textarea id="observation" placeholder="例如：鼓勵幼兒用手掌按壓、描述觸感">觀察幼兒是否願意主動觸摸，並以表情、聲音或動作表達感受。</textarea></div>
+      <button class="generate" id="generate">生成教案簡報</button>
+      <div class="status" id="status"></div>
+      <p class="hint">簡報會產生封面、學習目標、活動流程、觀察紀錄與親子延伸，共 5 頁 A4 直式版型。</p>
+    </aside>
+    <main>
+      <div class="topbar"><div><p class="eyebrow">教案預覽</p><h2 id="pageTitle">小手探索：彩色觸覺袋</h2><p>適合列印、張貼在教室，也能匯出成 PPTX 與家長分享。</p></div><div class="actions"><button class="secondary" id="print">列印／存成 PDF</button><button class="secondary" id="export">匯出 PPTX</button></div></div>
+      <div class="workspace"><div class="preview-wrap"><div class="preview" id="preview"></div><div class="preview-actions"><button class="export-main" id="exportBottom">匯出目前教案 PPTX</button></div></div><div class="side-panel"><h4>簡報頁面</h4><div class="slide-list" id="slideList"></div><div class="note">版面採 A4 直式比例，文字保留足夠留白，方便照顧者快速閱讀與補充手寫紀錄。</div></div></div>
+    </main>
+  </div>
+  <script>
+    const state = { photos: [], slides: [], active: 0 };
+    const $ = id => document.getElementById(id);
+    const topic = () => $('topic').value.trim() || '我的托嬰活動';
+    function readFiles(files) { [...files].slice(0, 8 - state.photos.length).forEach(file => { if (!file.type.startsWith('image/')) return; const reader = new FileReader(); reader.onload = e => { state.photos.push(e.target.result); renderThumbs(); render(); }; reader.readAsDataURL(file); }); }
+    function renderThumbs() { $('thumbs').innerHTML = state.photos.map((src, i) => `<div class="thumb"><img src="${src}" alt="活動照片 ${i+1}"><button aria-label="移除照片" data-remove="${i}">×</button></div>`).join(''); $('thumbs').querySelectorAll('[data-remove]').forEach(btn => btn.onclick = () => { state.photos.splice(+btn.dataset.remove, 1); renderThumbs(); render(); }); }
+    function makeSlides() { const t = topic(), a = $('age').value.trim() || '幼兒'; const o = $('observation').value.trim() || '留意幼兒的表情、動作與聲音反應。'; return [
+      {title:t, kicker:'TODAY’S ACTIVITY', lead:`一份給照顧者使用的活動教案範例，適用於 ${a}。`, photo:0},
+      {title:'活動目標', kicker:'LEARNING GOALS', bullets:['透過安全、可重複的感官探索，累積幼兒的觸覺經驗。','鼓勵幼兒主動選擇、等待與表達自己的感受。','在陪伴互動中建立對照顧者的信任與共同注意。']},
+      {title:'活動流程', kicker:'ACTIVITY FLOW', steps:[['暖身引導','展示材料，先讓幼兒觀察與自由靠近。'],['一起探索','照顧者示範輕按、拍打或搖晃，再邀請幼兒嘗試。'],['收尾分享','用簡短語句回應幼兒的發現，最後一起整理。']]},
+      {title:'觀察與紀錄', kicker:'OBSERVATION NOTES', lead:o, photo:1, bullets:['幼兒是否願意主動接近材料？','幼兒以什麼方式表達喜歡或不舒服？','是否需要調整材料大小、觸感或活動時間？']},
+      {title:'親子延伸', kicker:'HOME CONNECTION', lead:'把活動中的一個小元素帶回日常，讓探索自然延續在家中。', bullets:['在家用乾淨布巾包住熟悉物品，和孩子玩「摸一摸、猜一猜」。','家長可記錄孩子最有興趣的觸感，回饋給照顧者。','尊重孩子的拒絕訊號，維持短時間、愉快的互動。']}
+    ]; }
+    function render() { state.slides = makeSlides(); $('pageTitle').textContent = topic(); const s = state.slides[state.active] || state.slides[0]; const photo = s.photo !== undefined ? state.photos[s.photo] : null; let body = ''; if (s.bullets) body += `<ul>${s.bullets.map(x=>`<li>${x}</li>`).join('')}</ul>`; if (s.steps) body += `<div class="steps">${s.steps.map((x,i)=>`<div><b>0${i+1}</b><span><strong>${x[0]}</strong>${x[1]}</span></div>`).join('')}</div>`; $('preview').innerHTML = `<article class="slide"><div class="slide-kicker">${s.kicker}</div><h3>${s.title}</h3>${s.lead?`<p class="lead">${s.lead}</p>`:''}${s.photo!==undefined?`<div class="cover-photo ${photo?'':'empty'}">${photo?`<img src="${photo}" alt="教案照片">`:''}</div>`:''}${body}<div class="slide-footer"><span>小小教案工坊</span><span>${state.active+1} / ${state.slides.length}</span></div></article>`; $('slideList').innerHTML = state.slides.map((x,i)=>`<button class="slide-item ${i===state.active?'active':''}" data-slide="${i}"><strong>${String(i+1).padStart(2,'0')}　${x.title}</strong><span>${x.kicker}</span></button>`).join(''); $('slideList').querySelectorAll('[data-slide]').forEach(b=>b.onclick=()=>{state.active=+b.dataset.slide; render();}); }
+    $('photoInput').onchange = e => readFiles(e.target.files); ['dragenter','dragover'].forEach(ev => $('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('drag');})); ['dragleave','drop'].forEach(ev => $('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('drag');})); $('drop').ondrop=e=>readFiles(e.dataTransfer.files); $('generate').onclick=()=>{state.active=0; render(); $('status').style.display='block'; $('status').textContent='已更新 5 頁教案簡報預覽。';}; $('topic').oninput=()=>render(); $('age').oninput=()=>render(); $('observation').oninput=()=>render();
+    $('print').onclick=()=>window.print();
+    async function exportPptx(){ if(!window.PptxGenJS){ alert('PPTX 元件尚未載入，請確認網路連線後再試一次。'); return; } const pptx=new PptxGenJS(); pptx.layout='A4'; pptx.author='小小教案工坊'; pptx.subject='托嬰中心教案範例'; pptx.title=topic(); pptx.theme={headFontFace:'Noto Sans TC',bodyFontFace:'Noto Sans TC',lang:'zh-TW'}; state.slides.forEach((s,i)=>{ const p=pptx.addSlide(); p.background={color:'FFF9F0'}; p.addText(s.kicker,{x:.55,y:.55,w:6.2,h:.25,fontFace:'Noto Sans TC',fontSize:10,bold:true,color:'EE8F72',charSpacing:1.5}); p.addText(s.title,{x:.55,y:.9,w:6.1,h:.65,fontFace:'Noto Sans TC',fontSize:25,bold:true,color:'24332F',margin:0,breakLine:false}); if(s.lead)p.addText(s.lead,{x:.55,y:1.75,w:6.05,h:.65,fontSize:12,color:'52645E',breakLine:false,fit:'shrink'}); let y=2.65; if(s.photo!==undefined && state.photos[s.photo]){p.addImage({data:state.photos[s.photo],x:.55,y,w:6.15,h:3.3});y=6.2;} if(s.bullets){p.addText(s.bullets.map(x=>({text:x,options:{bullet:{type:'ul'},breakLine:true}})),{x:.7,y,w:5.9,h:2.7,fontSize:13,color:'24332F',breakLine:false,fit:'shrink',paraSpaceAfterPt:15});} if(s.steps){s.steps.forEach((x,j)=>{p.addText(`0${j+1}`,{x:.65,y:y+j*.9,w:.35,h:.3,fontSize:13,bold:true,color:'EE8F72'});p.addText([{text:x[0],options:{bold:true,breakLine:true}},{text:x[1],options:{breakLine:false}}],{x:1.15,y:y+j*.9,w:5.2,h:.55,fontSize:12,color:'24332F',fit:'shrink'});});} p.addText(`小小教案工坊   ${i+1} / ${state.slides.length}`,{x:.55,y:10.9,w:6.2,h:.2,fontSize:8,color:'8AA097',align:'right'}); }); await pptx.writeFile({fileName:`${topic()}_托嬰教案.pptx`}); }
+    $('export').onclick=exportPptx; $('exportBottom').onclick=exportPptx;
+    render();
+  </script>
+</body>
+</html>
+
